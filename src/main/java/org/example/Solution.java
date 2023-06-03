@@ -4,74 +4,78 @@ import org.example.visitors.FancyVisitor;
 import org.example.visitors.ProductOfRedNodesVisitor;
 import org.example.visitors.SumInLeavesVisitor;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Solution {
     private static String[] values;
     private static String[] colors;
     private static Tree[] treeArray;
+    private static Boolean[] used;
+    private static int numOfTrees;
+    private static List<Integer> leftSide;
+    private static List<Integer> rightSide;
 
     public static Tree solve() {
-        Scanner scan = new Scanner(System.in);
+        File file = new File("C:\\Users\\kolch\\Desktop\\Projects\\Tree\\src\\main\\java\\org\\example\\input09.txt");
+        Scanner scan;
+        try {
+            scan = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
-        int numOfTrees = Integer.parseInt(scan.nextLine()); // колличество узлов и листьев
+        numOfTrees = Integer.parseInt(scan.nextLine());
+        values = scan.nextLine().split(" ");
+        colors = scan.nextLine().split(" ");
 
-        treeArray = new Tree[numOfTrees]; // все узлы и листья дерева
-        values = scan.nextLine().split(" "); // значения узлов и листьев
-        colors = scan.nextLine().split(" "); // цвета узлов и листьев
+        leftSide = new ArrayList<>();
+        rightSide = new ArrayList<>();
 
-
-        List<Integer> leftSide = new ArrayList<>();
-        List<Integer> rightSide = new ArrayList<>();
+        used = new Boolean[numOfTrees];
+        for (int i = 0; i < numOfTrees; i++) {
+            used[i] = false;
+        }
+        treeArray = new Tree[numOfTrees];
 
         for (int i = 1; i < numOfTrees; i++) {
-            String[] tmp = scan.nextLine().split(" ");
-            leftSide.add(Integer.parseInt(tmp[0]));
-            rightSide.add(Integer.parseInt(tmp[1]));
+            leftSide.add(scan.nextInt());
+            rightSide.add(scan.nextInt());
         }
-
-        treeArray[0] = new TreeNode(Integer.parseInt(values[0]), Objects.equals(colors[0], "0") ? Color.RED : Color.GREEN, 0);
-        Map<Integer, ArrayList<Integer>> children = new HashMap<>();
-
-        for (int i = 1; i <= numOfTrees; i++) {
-            children.put(i, new ArrayList<Integer>());
-        }
-
-        mapFilling(children, 1, -1, leftSide, rightSide);
-
-
-        for (Map.Entry<Integer, ArrayList<Integer>> entry : children.entrySet()) {
-            for (Integer integer :
-                    entry.getValue()) {
-                ((TreeNode) treeArray[entry.getKey() - 1]).addChild(treeArray[integer - 1]);
-            }
-        }
+        var start = new Date().getTime();
+        mapFilling(1, -1);
+        var end = new Date().getTime();
+        System.out.println(end-start);
         return treeArray[0];
     }
 
-    private static void mapFilling(Map<Integer, ArrayList<Integer>> children, int node, int depth, List<Integer> leftSide, List<Integer> rightSide) {
-        for (int i = 0; i < leftSide.size(); i++) {
-            if (leftSide.get(i) == node) {
-                children.get(node).add(rightSide.get(i));
-                leftSide.remove(i);
-                rightSide.remove(i);
-                i--;
-            } else if (rightSide.get(i) == node) {
-                children.get(node).add(leftSide.get(i));
-                leftSide.remove(i);
-                rightSide.remove(i);
-                i--;
+    private static void mapFilling(int node, int depth) {
+        for (int i = 0; i < numOfTrees-1; i++) {
+            if (!used[i] && leftSide.get(i) == node) {
+                used[i] = true;
+                treeArray[node - 1] = treeArray[node - 1] == null ? new TreeNode(Integer.parseInt(values[node - 1]), Objects.equals(colors[node - 1], "1") ? Color.GREEN : Color.RED, depth + 1) : treeArray[node - 1];
+
+                int newNode = rightSide.get(i);
+
+                mapFilling(newNode, depth + 1);
+                ((TreeNode) treeArray[node - 1]).addChild(treeArray[newNode - 1]);
+
+            } else if (!used[i] && rightSide.get(i) == node) {
+                used[i] = true;
+                treeArray[node - 1] = treeArray[node - 1] == null ? new TreeNode(Integer.parseInt(values[node - 1]), Objects.equals(colors[node - 1], "1") ? Color.GREEN : Color.RED, depth + 1) : treeArray[node - 1];
+                int newNode = leftSide.get(i);
+
+                mapFilling(newNode, depth + 1);
+                ((TreeNode) treeArray[node - 1]).addChild(treeArray[newNode - 1]);
             }
         }
 
-        if (children.get(node).isEmpty()) {
-            treeArray[node - 1] = new TreeLeaf(Integer.parseInt(values[node - 1]), Objects.equals(colors[node - 1], "1") ? Color.GREEN : Color.RED, depth + 1);
-        } else {
-            treeArray[node - 1] = new TreeNode(Integer.parseInt(values[node - 1]), Objects.equals(colors[node - 1], "1") ? Color.GREEN : Color.RED, depth + 1);
+        if (treeArray[node - 1] != null) {
+            return;
         }
-        for (int iter : children.get(node)) {
-            mapFilling(children, iter, depth + 1, leftSide, rightSide);
-        }
+
+        treeArray[node - 1] = new TreeLeaf(Integer.parseInt(values[node - 1]), Objects.equals(colors[node - 1], "1") ? Color.GREEN : Color.RED, depth + 1);
     }
 
 
