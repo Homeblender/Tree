@@ -9,16 +9,15 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Solution {
-    private static String[] values;
-    private static String[] colors;
-    private static Tree[] treeArray;
-    private static Boolean[] used;
+    private static int[] values;
+    private static int[] colors;
+    private static byte[][] relations;
+
+    private static boolean[] used;
     private static int numOfTrees;
-    private static List<Integer> leftSide;
-    private static List<Integer> rightSide;
 
     public static Tree solve() {
-        File file = new File("C:\\Users\\kolch\\Desktop\\Projects\\Tree\\src\\main\\java\\org\\example\\input09.txt");
+        File file = new File("C:\\Users\\kolch\\Desktop\\Projects\\Tree\\src\\main\\java\\org\\example\\input08.txt");
         Scanner scan;
         try {
             scan = new Scanner(file);
@@ -26,61 +25,63 @@ public class Solution {
             throw new RuntimeException(e);
         }
 
-        numOfTrees = Integer.parseInt(scan.nextLine());
-        values = scan.nextLine().split(" ");
-        colors = scan.nextLine().split(" ");
+        numOfTrees = scan.nextInt();
 
-        leftSide = new ArrayList<>();
-        rightSide = new ArrayList<>();
+        values = new int[numOfTrees];
+        colors = new int[numOfTrees];
 
-        used = new Boolean[numOfTrees];
+        used = new boolean[numOfTrees];
+
         for (int i = 0; i < numOfTrees; i++) {
+            values[i] = scan.nextInt();
+        }
+        for (int i = 0; i < numOfTrees; i++) {
+            colors[i] = scan.nextInt();
             used[i] = false;
         }
-        treeArray = new Tree[numOfTrees];
 
+
+
+        relations = new byte[numOfTrees][numOfTrees];
         for (int i = 1; i < numOfTrees; i++) {
-            leftSide.add(scan.nextInt());
-            rightSide.add(scan.nextInt());
+            int xy = scan.nextInt() - 1;
+            int yx = scan.nextInt() - 1;
+
+            relations[xy][yx] = 1;
+            relations[yx][xy] = 1;
         }
-        var start = new Date().getTime();
-        mapFilling(1, -1);
-        var end = new Date().getTime();
-        System.out.println(end-start);
-        return treeArray[0];
+
+
+        return mapFilling(1, -1);
     }
 
-    private static void mapFilling(int node, int depth) {
-        for (int i = 0; i < numOfTrees-1; i++) {
-            if (!used[i] && leftSide.get(i) == node) {
+    private static Tree mapFilling(int node, int depth) {
+        boolean isnode = false;
+        TreeNode treeNode = null;
+        for (int i = 0; i < numOfTrees; i++) {
+            if (!used[i] && relations[node - 1][i]==1) {
+                if (!isnode) {
+                    treeNode = new TreeNode(values[node - 1], colors[node - 1] == 1 ? Color.GREEN : Color.RED, depth + 1);
+                    isnode = true;
+                }
+                relations[node - 1][i] = 0;
+                relations[i][node - 1] = 0;
                 used[i] = true;
-                treeArray[node - 1] = treeArray[node - 1] == null ? new TreeNode(Integer.parseInt(values[node - 1]), Objects.equals(colors[node - 1], "1") ? Color.GREEN : Color.RED, depth + 1) : treeArray[node - 1];
-
-                int newNode = rightSide.get(i);
-
-                mapFilling(newNode, depth + 1);
-                ((TreeNode) treeArray[node - 1]).addChild(treeArray[newNode - 1]);
-
-            } else if (!used[i] && rightSide.get(i) == node) {
-                used[i] = true;
-                treeArray[node - 1] = treeArray[node - 1] == null ? new TreeNode(Integer.parseInt(values[node - 1]), Objects.equals(colors[node - 1], "1") ? Color.GREEN : Color.RED, depth + 1) : treeArray[node - 1];
-                int newNode = leftSide.get(i);
-
-                mapFilling(newNode, depth + 1);
-                ((TreeNode) treeArray[node - 1]).addChild(treeArray[newNode - 1]);
+                treeNode.addChild(mapFilling(i + 1, depth + 1));
             }
         }
+        if (isnode) return treeNode;
 
-        if (treeArray[node - 1] != null) {
-            return;
-        }
-
-        treeArray[node - 1] = new TreeLeaf(Integer.parseInt(values[node - 1]), Objects.equals(colors[node - 1], "1") ? Color.GREEN : Color.RED, depth + 1);
+        return new TreeLeaf(values[node - 1], colors[node - 1] == 1 ? Color.GREEN : Color.RED, depth + 1);
     }
 
 
     public static void main(String[] args) {
+        var start = new Date().getTime();
         Tree root = solve();
+        var end = new Date().getTime();
+        System.out.println(end - start);
+
         SumInLeavesVisitor vis1 = new SumInLeavesVisitor();
         ProductOfRedNodesVisitor vis2 = new ProductOfRedNodesVisitor();
         FancyVisitor vis3 = new FancyVisitor();
