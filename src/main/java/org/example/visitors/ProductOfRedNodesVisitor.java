@@ -9,12 +9,12 @@ import java.util.List;
 
 public class ProductOfRedNodesVisitor extends TreeVis {
     private List<Integer> listValues = new ArrayList<>();
-    private static final int temp = 1000000007;
+    private static final int module = 1000000007;
 
     public int getResult() {
         long f = 1;
         for (Integer integer: listValues)
-            f = (f*integer) % temp;
+            f = (f*integer) % module;
         listValues = new ArrayList<>();
         return (int) Math.abs(f);
     }
