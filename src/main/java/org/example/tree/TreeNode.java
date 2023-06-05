@@ -1,6 +1,7 @@
-package org.example;
+package org.example.tree;
 
-import org.example.visitors.TreeVis;
+import org.example.Color;
+import org.example.visitor.TreeVis;
 
 import java.util.ArrayList;
 

@@ -1,8 +1,8 @@
-package org.example.visitors;
+package org.example.visitor;
 
 import org.example.Color;
-import org.example.TreeLeaf;
-import org.example.TreeNode;
+import org.example.tree.TreeLeaf;
+import org.example.tree.TreeNode;
 
 public class FancyVisitor extends TreeVis {
     private int SumEven = 0;

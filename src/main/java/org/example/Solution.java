@@ -1,11 +1,12 @@
 package org.example;
 
-import org.example.visitors.FancyVisitor;
-import org.example.visitors.ProductOfRedNodesVisitor;
-import org.example.visitors.SumInLeavesVisitor;
+import org.example.tree.Tree;
+import org.example.tree.TreeLeaf;
+import org.example.tree.TreeNode;
+import org.example.visitor.FancyVisitor;
+import org.example.visitor.ProductOfRedNodesVisitor;
+import org.example.visitor.SumInLeavesVisitor;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Solution {
@@ -15,29 +16,22 @@ public class Solution {
     private static boolean[] used;
 
     public static Tree solve() {
-        File file = new File("src/main/java/org/example/input09.txt");
-        Scanner scan;
-        try {
-            scan = new Scanner(file);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        Scanner scan = new Scanner(System.in);
 
         int numOfTrees = scan.nextInt();
 
         values = new int[numOfTrees];
         colors = new int[numOfTrees];
         used = new boolean[numOfTrees];
-        relations = new HashMap<>();
+        relations = new HashMap<Integer, List<Integer>>();
 
         for (int i = 0; i < numOfTrees; i++) {
             values[i] = scan.nextInt();
         }
         for (int i = 0; i < numOfTrees; i++) {
             colors[i] = scan.nextInt();
-            relations.put(i + 1, new ArrayList<>());
+            relations.put(i + 1, new ArrayList<Integer>());
         }
-
 
         for (int i = 1; i < numOfTrees; i++) {
             int x = scan.nextInt();
@@ -46,7 +40,6 @@ public class Solution {
             relations.get(x).add(y);
             relations.get(y).add(x);
         }
-
 
         return treeBuilder(1, -1);
     }
@@ -69,12 +62,7 @@ public class Solution {
 
 
     public static void main(String[] args) {
-        var start = new Date().getTime();
-
         Tree root = solve();
-
-        var end = new Date().getTime();
-        System.out.println(end - start);
 
         SumInLeavesVisitor vis1 = new SumInLeavesVisitor();
         ProductOfRedNodesVisitor vis2 = new ProductOfRedNodesVisitor();

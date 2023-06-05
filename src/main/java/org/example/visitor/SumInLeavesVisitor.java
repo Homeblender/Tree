@@ -1,7 +1,7 @@
-package org.example.visitors;
+package org.example.visitor;
 
-import org.example.TreeLeaf;
-import org.example.TreeNode;
+import org.example.tree.TreeLeaf;
+import org.example.tree.TreeNode;
 
 public class SumInLeavesVisitor extends TreeVis {
 
@@ -14,7 +14,6 @@ public class SumInLeavesVisitor extends TreeVis {
     }
 
     public void visitNode(TreeNode node) {
-        return;
     }
 
     public void visitLeaf(TreeLeaf leaf) {
